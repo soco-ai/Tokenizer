@@ -1,10 +1,11 @@
-from transformers import BertTokenizerFast
+from tokenizers import BertWordPieceTokenizer
 import jieba
 import spacy
 import json
+from typing import List
+
 
 class SocoBertTokenizer(object):
-
     CHAR = 'char'
     WORD = 'word'
     ALL = "all"
@@ -13,8 +14,10 @@ class SocoBertTokenizer(object):
     def __init__(self, base_vocab_path, final_vocab_path, lang, uncased=True, add_special_tokens=False):
         self._lang = lang
         self._uncased = uncased
-        self._tokenizer = BertTokenizerFast.from_pretrained(base_vocab_path, add_special_tokens=add_special_tokens)
-
+        self._add_special_tokens = add_special_tokens
+        self._tokenizer = BertWordPieceTokenizer(base_vocab_path,
+                                                 handle_chinese_chars=self._lang=='zh',
+                                                 lowercase=uncased)
         if self._lang == 'en':
             self.en_spacy = spacy.load('en_core_web_sm')
 
@@ -32,7 +35,7 @@ class SocoBertTokenizer(object):
         self.vocab2id = {v: idx for idx, v in enumerate(vocab)}
         self.id2vocab = vocab
 
-        print("Load vocab of size (original {}) = {} ".format(self._tokenizer.vocab_size, len(vocab)))
+        print("Load vocab of size (original {}) = {} ".format(self._tokenizer.get_vocab_size(), len(vocab)))
 
     @property
     def sep_token(self):
@@ -41,6 +44,10 @@ class SocoBertTokenizer(object):
     @property
     def cls_token(self):
         return '[CLS]'
+
+    def _wp_tokenize(self, text) -> List[str]:
+        res = self._tokenizer.encode(text, add_special_tokens=self._add_special_tokens).tokens
+        return res
 
     def _word_tokenize(self, text):
         if self._uncased:
@@ -72,26 +79,26 @@ class SocoBertTokenizer(object):
 
     def _tokenize(self, text, mode=CHAR):
         if mode == self.CHAR:
-            results = self._tokenizer.tokenize(text)
+            results = self._wp_tokenize(text)
 
         elif mode == self.WORD:
             wor_tokens = self._word_tokenize(text)
             results = []
             for w in wor_tokens:
-                sub_tokens = self._tokenizer.tokenize(w[0])
+                sub_tokens = self._wp_tokenize(w[0])
                 if len(sub_tokens) > 1 and tuple(sub_tokens) in self._valid_vocab:
                     results.append(tuple(sub_tokens))
                 else:
                     results.extend(sub_tokens)
 
         elif mode == self.ALL:
-            sub_res = self._tokenizer.tokenize(text)
+            sub_res = self._wp_tokenize(text)
             wor_tokens = self._word_tokenize(text)
             new_tokens = self._map_word_to_subword(wor_tokens, sub_res)
             results = sub_res
 
             for w in new_tokens:
-                sub_tokens = self._tokenizer.tokenize(w)
+                sub_tokens = self._wp_tokenize(w)
                 if len(sub_tokens) > 1 and tuple(sub_tokens) in self._valid_vocab:
                     results.append(tuple(sub_tokens))
         else:
@@ -110,7 +117,6 @@ class SocoBertTokenizer(object):
             return self._normalize(tokens)[0:max_len]
         else:
             return tokens[0:max_len]
-
 
     def convert_tokens_to_ids(self, tokens):
         q_ids = []

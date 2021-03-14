@@ -8,13 +8,14 @@ import json
 class Tokenizer(object):
     local_dir = "resources"
 
-    def __init__(self, model_id, region):
+    def __init__(self, model_id, access_key, secret, engine):
         # check if model path is on disk. o/w download it
-        bucket = CloudBucket(region)
-        bucket.download_tokenizer('tokenizers', model_id, local_dir=self.local_dir)
+
         if os.path.exists(os.path.join(self.local_dir, model_id, 'vocab.txt')):
             base_path = os.path.join(self.local_dir, model_id, 'vocab.txt'.format(model_id))
         else:
+            bucket = CloudBucket(access_key, secret, engine)
+            bucket.download_tokenizer('tokenizers', model_id, local_dir=self.local_dir)
             base_path = os.path.join(self.local_dir, model_id, '{}.txt'.format(model_id))
 
         final_path = os.path.join(self.local_dir, model_id, '{}.json'.format(model_id))

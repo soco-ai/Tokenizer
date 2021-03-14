@@ -9,9 +9,3 @@ consoleHandler.setLevel(logging.INFO)
 consoleHandler.setFormatter(logFormatter)
 rootLogger.addHandler(consoleHandler)
 
-
-__version__ = "0.2.9"
-__DOWNLOAD_SERVER__ = 'https://public.ukp.informatik.tu-darmstadt.de/reimers/sentence-transformers/v0.2/'
-from .logging_handlerr import LoggingHandler
-from .SentenceTransformer import SentenceTransformer
-
