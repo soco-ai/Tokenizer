@@ -1,5 +1,5 @@
 from tokenizers import BertWordPieceTokenizer
-import jieba
+import jieba_fast as jieba
 import spacy
 import json
 from typing import List
