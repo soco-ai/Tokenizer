@@ -1,5 +1,5 @@
-# Encoders
-A library of neural encoders to convert any types of data into embeddings, dense or sparse. 
+# Tokenizer
+Tokenizer different language fast.
 
 
 ## Build a package
@@ -7,30 +7,8 @@ A library of neural encoders to convert any types of data into embeddings, dense
     twine upload dist/*
 
 ## Use Locally
-    model = EncoderLoader.load_model('pretrain-models', <model_id>, use_gpu=True, region='cn')
-    model.encode(['I am a good man'], show_progress_bar=True, batch_size=batch_size,)
-
-## Use as RESTful API
-Start a server
-    
-    uvicorn soco_encoders.http.main:app --host 0.0.0.0 --port 8000 --workers 4
-
-Start a client
-
-    res = requests.post(url='http://localhost:8000/encoder/v1/encode',
-                          json={
-                              "model_id": model_id,
-                              "text": [x1] * batch_size,
-                              'batch_size': batch_size,
-                              "mode": "default",
-                              "kwargs": {}
-                          })
-
-## Use as GRPC API
-Start a server
-    
-    python -m soco_encoders.grpc.server --host 0.0.0.0 --port 8000 --workers 4
-    
-Start a client
-       
-       check out example in bench_grpc.py
+    x1 = '<a>刘强东是一个著名企业家。</a> 他创建了京东。'
+    t = EncoderLoader.load_tokenizer('bert-base-chinese-zh_v4-10K')
+    print(t.tokenize(x1, mode='char'))
+    print(t.tokenize(x1, mode='word'))
+    print(t.tokenize(x1, mode='all'))
