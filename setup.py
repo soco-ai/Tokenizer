@@ -5,7 +5,7 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="soco-tokenizer",
-    version="1.0",
+    version="1.1",
     author="tianchez",
     description="Fast tokenizer",
     long_description=long_description,
@@ -21,11 +21,9 @@ setuptools.setup(
         'numpy >= 1.15.3',
         'boto3 >= 1.9.46',
         'oss2 >= 2.6.0',
-        'scipy >= 1.2.1',
-        'transformers == 2.11.0',
         'tqdm >= 4.45.0',
         'nltk >= 3.5',
-        'jieba >= 0.42.1',
+        'jieba-fast >= 0.53',
         'spacy >= 2.2.4',
         'requests >= 2.23.0'
     ]
